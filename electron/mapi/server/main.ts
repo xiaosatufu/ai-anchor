@@ -37,13 +37,33 @@ const getModule = async (serverInfo: ServerInfo, option?: {
                 serverModule[serverInfo.localPath] = server
             } else {
                 const serverPath = `${serverInfo.localPath}/server.js`
-                if (!await Files.exists(serverPath, {
+                const configPath = `${serverInfo.localPath}/config.json`
+
+                let server = null
+                if (await Files.exists(serverPath, {
                     isFullPath: true
                 })) {
+                    const module = await import(`file://${serverPath}`)
+                    server = module.default
+                }
+                if (!server && await Files.exists(configPath, {
+                    isFullPath: true
+                })) {
+                    const configContent = await Files.read(configPath, {isFullPath: true})
+                    try {
+                        const config = JSON.parse(configContent)
+                        if (config.entry === '__EasyServer__') {
+                            server = new AigcServer['EasyServer'](config)
+                        } else {
+                            throw `ServerEntryNotFound : ${config.entry}`
+                        }
+                    } catch (e) {
+                        throw `ConfigParseError : ${configPath}`
+                    }
+                }
+                if (!server) {
                     throw `ServerFileNotFound : ${serverPath}`
                 }
-                const module = await import(`file://${serverPath}`)
-                const server = module.default
                 server.type = 'custom'
                 server.ServerApi = ServerApi
                 if (server.init) {

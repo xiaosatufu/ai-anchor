@@ -1,6 +1,6 @@
 {
     "name": "aigcpanel",
-    "version": "0.5.0",
+    "version": "0.6.0-beta",
     "main": "dist-electron/main/index.js",
     "description": "一站式AI数字人系统",
     "author": "ModStartLib",

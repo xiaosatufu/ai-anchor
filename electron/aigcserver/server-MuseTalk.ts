@@ -69,7 +69,6 @@ export const ServerMuseTalk: ServerContext = {
                 this.ServerApi.file.appendText(this.ServerInfo.logFile, data)
                 this.send('error', this.ServerInfo)
             },
-
         })
     },
     async ping() {
