@@ -76,11 +76,41 @@
 |-|- xxx       - 其他模型文件，推荐将模型文件放在 model 文件夹下
 ```
 
-### 简单篇
+### 建议接入
 
 > 需要掌握 python 开发能力
 
+首先需要将python环境打包到同一个目录，比如 `_aienv` ，然后可以通过 `python run.py ./config.json` 的方式运行模型。
+
+模型运行之后，通过标准输入输出的方式运行模型，通过标准输入传递参数，通过标准输出返回结果。
+
+```python
+# 输出格式为 AigcPanelRunResult[id][base64(json(data))]
+import json, base64
+
+def printResult(key,value):
+    print(f'AigcPanelRunResult[{config['id']}][' + base64.b64encode(json.dumps(data).encode()).decode()+']')
+
+# 解析输入配置文件
+config = json.loads(open(sys.argv[1], 'r').read())
+modelConfig = config['modelConfig']
+
+# 公共输出
+## 输出给前端的是否是以 CUDA 运行
+printResult('UseCuda', True)
+
+## 语音合成输出结果
+printResult('url', '/path/to/result.wav')
+
+## 语音克隆输出结果
+printResult('url', '/path/to/result.wav')
+
+## 视频对口型输出结果
+printResult('url', '/path/to/result.mp4')
+```
+
 #### config.json 文件示例
+
 
 ```json5
 {
@@ -92,12 +122,17 @@
     "platformName": "win",         // 支持系统，win, osx, linux
     "platformArch": "x86",         // 支持架构，x86, arm64
     "serverRequire": ">=0.5.0",    // 对 AigcPanel 版本的要求，如 >=0.5.0
-    "entry": "__CUSTOM__",         // 固定值 __CUSTOM_SHELL__
-    "custom": {
-        "entry": ".\\runtime\\python.exe",
+    "entry": "__EasyServer__",     // 固定值，不需要修改
+    "easyServer": {
+        // python 运行入口
+        "entry": "./_aienv/bin/python",
         "entryArgs": [
             "run.py",
             "${CONFIG}"
+        ],
+        // 环境变量
+        "envs": [
+            "AAA=1"
         ]
     },
     "functions": [
@@ -117,19 +152,7 @@
 }
 ```
 
-#### 模型运行示例
-
-通过标准输入输出的方式运行模型，通过标准输入传递参数，通过标准输出返回结果。
-
-```python
-# 输出格式为 AigcPanelParam[base64(json(data))] 
-# 返回模型是否使用GPU等方式
-
-# 返回模型结果
-```
-
-
-### 高级篇
+### 高级接入
 
 > 需要掌握 js 开发能力
 
