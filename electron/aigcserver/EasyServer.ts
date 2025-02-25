@@ -44,15 +44,17 @@ export const EasyServer = function (config: any) {
     };
     this.start = async function () {
         // console.log('start', this.ServerInfo)
+        this.serverRuntime.startTime = Date.now()
         this.send('starting', this.ServerInfo)
     }
     this.ping = async function (): Promise<boolean> {
         // console.log('ping', this.ServerInfo)
-        return true
+        return this.serverRuntime.startTime > 0
     }
     this.stop = async function () {
         // console.log('stop', this.ServerInfo)
         this.send('stopping', this.ServerInfo)
+        this.serverRuntime.startTime = 0
         this.send('stopped', this.ServerInfo)
     }
     this._callFunc = async function (
@@ -95,11 +97,16 @@ export const EasyServer = function (config: any) {
             }
             for (let i = 0; i < command.length; i++) {
                 command[i] = command[i].replace('${CONFIG}', `"${configJsonPath}"`)
+                command[i] = command[i].replace('${ROOT}', this.ServerInfo.localPath)
             }
             const envMap = {}
             const dep = process.platform === 'win32' ? ';' : ':'
             envMap['PATH'] = process.env['PATH'] || ''
             envMap['PATH'] = `${this.ServerInfo.localPath}${dep}${envMap['PATH']}`
+            if (await this.ServerApi.file.exists(`${this.ServerInfo.localPath}/binary`, {isFullPath: true})) {
+                envMap['PATH'] = `${this.ServerInfo.localPath}/binary${dep}${envMap['PATH']}`
+            }
+            envMap['PYTHONIOENCODING'] = 'utf-8'
             if (this.serverConfig.easyServer.envs) {
                 for (const e of this.serverConfig.easyServer.envs) {
                     let pcs = e.split('=')
@@ -107,7 +114,10 @@ export const EasyServer = function (config: any) {
                     envMap[key] = pcs.join('=')
                 }
             }
-            envMap['PYTHONIOENCODING'] = 'utf-8'
+            for (const k in envMap) {
+                envMap[k] = envMap[k].replace('${CONFIG}', `"${configJsonPath}"`)
+                envMap[k] = envMap[k].replace('${ROOT}', this.ServerInfo.localPath)
+            }
             const launcherResult: LauncherResultType = {
                 result: {},
                 endTime: null,

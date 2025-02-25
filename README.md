@@ -76,7 +76,7 @@
 |-|- xxx       - 其他模型文件，推荐将模型文件放在 model 文件夹下
 ```
 
-### 建议接入
+### 简易接入
 
 > 需要掌握 python 开发能力
 
@@ -88,12 +88,13 @@
 # 输出格式为 AigcPanelRunResult[id][base64(json(data))]
 import json, base64
 
-def printResult(key,value):
-    print(f'AigcPanelRunResult[{config['id']}][' + base64.b64encode(json.dumps(data).encode()).decode()+']')
-
 # 解析输入配置文件
 config = json.loads(open(sys.argv[1], 'r').read())
 modelConfig = config['modelConfig']
+
+def printResult(key,value):
+    global config
+    print(f'AigcPanelRunResult[{config['id']}][' + base64.b64encode(json.dumps(data).encode()).decode()+']')
 
 # 公共输出
 ## 输出给前端的是否是以 CUDA 运行
@@ -151,6 +152,10 @@ printResult('url', '/path/to/result.mp4')
     ]
 }
 ```
+
+#### 测试导入
+
+完成两个文件的开发之后，在软件中尝试选择模型文件夹中的config.json导入。
 
 ### 高级接入
 
