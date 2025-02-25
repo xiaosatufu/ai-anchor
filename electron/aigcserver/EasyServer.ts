@@ -179,6 +179,66 @@ export const EasyServer = function (config: any) {
             this.isRunning = false
         }
     }
+    this.soundTts = async function (data: ServerFunctionDataType) {
+        // console.log('videoGen', {data, serverInfo: this.ServerInfo})
+        return this._callFunc(
+            data,
+            async (data: ServerFunctionDataType) => {
+                return {
+                    id: data.id,
+                    mode: 'local',
+                    modelConfig: {
+                        type: 'soundTts',
+                        param: data.param,
+                        text: data.text,
+                    }
+                }
+            },
+            async (data: ServerFunctionDataType, launcherResult: LauncherResultType) => {
+                if (!('url' in launcherResult.result)) {
+                    throw "执行失败，请查看模型日志"
+                }
+                const localPath = await this.ServerApi.file.temp('wav')
+                await this.ServerApi.file.rename(launcherResult.result.url, localPath, {
+                    isFullPath: true
+                })
+                return {
+                    filePath: localPath
+                }
+            }
+        )
+    }
+    this.soundClone = async function (data: ServerFunctionDataType) {
+        // console.log('videoGen', {data, serverInfo: this.ServerInfo})
+        return this._callFunc(
+            data,
+            async (data: ServerFunctionDataType) => {
+                return {
+                    id: data.id,
+                    mode: 'local',
+                    modelConfig: {
+                        type: 'soundClone',
+                        param: data.param,
+                        text: data.text,
+                        promptAudio: data.promptAudio,
+                        promptText: data.promptText,
+                    }
+                }
+            },
+            async (data: ServerFunctionDataType, launcherResult: LauncherResultType) => {
+                if (!('url' in launcherResult.result)) {
+                    throw "执行失败，请查看模型日志"
+                }
+                const localPath = await this.ServerApi.file.temp('wav')
+                await this.ServerApi.file.rename(launcherResult.result.url, localPath, {
+                    isFullPath: true
+                })
+                return {
+                    filePath: localPath
+                }
+            }
+        )
+    }
     this.videoGen = async function (data: ServerFunctionDataType) {
         // console.log('videoGen', {data, serverInfo: this.ServerInfo})
         return this._callFunc(
@@ -188,15 +248,16 @@ export const EasyServer = function (config: any) {
                     id: data.id,
                     mode: 'local',
                     modelConfig: {
+                        type: 'videoGen',
+                        param: data.param,
                         video: data.videoFile,
                         audio: data.soundFile,
-                        param: data.param,
                     }
                 }
             },
             async (data: ServerFunctionDataType, launcherResult: LauncherResultType) => {
                 if (!('url' in launcherResult.result)) {
-                    throw "合成失败，请查看模型日志"
+                    throw "执行失败，请查看模型日志"
                 }
                 const localPath = await this.ServerApi.file.temp('mp4')
                 await this.ServerApi.file.rename(launcherResult.result.url, localPath, {
