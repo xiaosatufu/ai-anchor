@@ -1,4 +1,4 @@
-import {app, BrowserWindow, desktopCapturer, session, shell} from 'electron'
+import {app, BrowserWindow, desktopCapturer, dialog, session, shell} from 'electron'
 import {optimizer} from '@electron-toolkit/utils'
 
 /** process.js 必须位于非依赖项的顶部 */
@@ -10,7 +10,7 @@ import {WindowConfig} from "../config/window";
 import {AppConfig} from "../../src/config";
 import Log from "../mapi/log/main";
 import {ConfigMenu} from "../config/menu";
-import {ConfigLang} from "../config/lang";
+import {ConfigLang, t} from "../config/lang";
 import {ConfigContextMenu} from "../config/contextMenu";
 import {preloadDefault, rendererLoadPath} from "../lib/env-main";
 import {Page} from "../page";
@@ -20,6 +20,7 @@ import {isPackaged} from "../lib/env";
 import {executeHooks} from "../lib/hooks";
 import {DevToolsManager} from "../lib/devtools";
 import {AppsMain} from "../mapi/app/main";
+import {ServerMain} from "../mapi/server/main";
 
 const isDummyNew = isDummy
 
@@ -110,7 +111,7 @@ async function createWindow() {
         height: WindowConfig.initHeight,
         backgroundColor: await AppsMain.defaultDarkModeBackgroundColor(),
         webPreferences: {
-            preload : preloadDefault,
+            preload: preloadDefault,
             // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
             nodeIntegration: true,
             webSecurity: false,
@@ -177,6 +178,21 @@ app.whenReady()
         })
         createWindow().then()
     })
+
+app.on('before-quit', (event) => {
+    const localServerRunningCount = ServerMain.getRunningServerCount()
+    if (localServerRunningCount > 0) { //  && isPackaged
+        event.preventDefault()
+        dialog.showMessageBox({
+            type: 'info',
+            title: t('提醒'),
+            message: t('有 {count} 个本地模型服务正在运行，请停止后再关闭应用', {
+                count: localServerRunningCount
+            }),
+            buttons: [t('确定')]
+        })
+    }
+});
 
 app.on('will-quit', () => {
     MAPI.destroy()

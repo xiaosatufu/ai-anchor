@@ -5,6 +5,10 @@ const listGpus = async () => {
     return ipcRenderer.invoke('server:listGpus')
 }
 
+const runningServerCount = async (count: number | null) => {
+    return ipcRenderer.invoke('server:runningServerCount', count)
+}
+
 const isSupport = async (serverInfo: ServerInfo) => {
     return ipcRenderer.invoke('server:isSupport', serverInfo)
 }
@@ -42,6 +46,7 @@ const callFunctionWithException = async (serverInfo: ServerInfo, method: string,
 
 export default {
     listGpus,
+    runningServerCount,
     isSupport,
     start,
     ping,

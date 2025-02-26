@@ -63,11 +63,13 @@ const createEventChannel = (server: ServerRecord, serverRuntime?: ServerRuntime)
                 clearTimeout(serverRuntime.pingCheckTimer)
                 serverRuntime.status = EnumServerStatus.STOPPED
                 window.__page.destroyChannel(eventChannel)
+                updateRunningServerCount().then()
                 break
             case 'error':
                 clearTimeout(serverRuntime.pingCheckTimer)
                 serverRuntime.status = EnumServerStatus.ERROR
                 window.__page.destroyChannel(eventChannel)
+                updateRunningServerCount().then()
                 break
             case 'starting':
             case 'stopping':
@@ -106,6 +108,13 @@ const createEventChannel = (server: ServerRecord, serverRuntime?: ServerRuntime)
         }
     })
     return eventChannel
+}
+
+const updateRunningServerCount = async () => {
+    const count = server.records.filter(r => {
+        return r.type === EnumServerType.LOCAL_DIR && r.status === EnumServerStatus.RUNNING
+    }).length
+    await window.$mapi.server.runningServerCount(count)
 }
 
 export const serverStore = defineStore("server", {
@@ -202,6 +211,7 @@ export const serverStore = defineStore("server", {
                     .then(success => {
                         if (success) {
                             serverRuntime.status = EnumServerStatus.RUNNING
+                            updateRunningServerCount().then()
                         } else {
                             serverRuntime.pingCheckTimer = setTimeout(pingCheck, 2000)
                         }

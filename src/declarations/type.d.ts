@@ -212,6 +212,7 @@ declare interface Window {
                 name: string,
                 size: number,
             }[]>,
+            runningServerCount: (count: number | null) => Promise<number>,
             isSupport: (serverInfo: ServerInfo) => Promise<boolean>,
             start: (serverInfo: ServerInfo) => Promise<void>,
             stop: (serverInfo: ServerInfo) => Promise<void>,

@@ -56,6 +56,7 @@ export const EasyServer = function (config: any) {
         this.send('stopping', this.ServerInfo)
         this.serverRuntime.startTime = 0
         this.send('stopped', this.ServerInfo)
+        this.send('success', this.ServerInfo)
     }
     this._callFunc = async function (
         data: ServerFunctionDataType,

@@ -7,10 +7,22 @@ import {SendType, ServerContext, ServerInfo} from "./type";
 import {Files} from "../file/main";
 import {getGpuInfo} from "../../lib/env-main";
 
-
 ipcMain.handle('server:listGpus', async (event) => {
     return await getGpuInfo()
 })
+
+let runningServerCount = 0
+ipcMain.handle('server:runningServerCount', async (event, count: number | null) => {
+    if (count === null) {
+        return runningServerCount
+    }
+    // console.log('runningServerCount', count)
+    runningServerCount = count
+    return runningServerCount
+})
+const getRunningServerCount = () => {
+    return runningServerCount
+}
 
 const serverModule: {
     [key: string]: ServerContext
@@ -177,5 +189,9 @@ ipcMain.handle('server:callFunction', async (event, serverInfo: ServerInfo, meth
 })
 
 export default {
-    init
+    init,
+}
+
+export const ServerMain = {
+    getRunningServerCount
 }

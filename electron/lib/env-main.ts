@@ -70,9 +70,3 @@ export const getGpuInfo = async () => {
     }
     return list
 }
-
-setTimeout(() => {
-    getGpuInfo().then(res => {
-        console.log('gpuInfo', res)
-    })
-}, 3000)
