@@ -100,6 +100,12 @@ export const EasyServer = function (config: any) {
                 command[i] = command[i].replace('${ROOT}', this.ServerInfo.localPath)
             }
             const envMap = {}
+            if (this.serverConfig.easyServer.entry === 'launcher') {
+                const systemEnv = this.ServerApi.env()
+                for (const k in systemEnv) {
+                    envMap[k] = systemEnv[k]
+                }
+            }
             const dep = process.platform === 'win32' ? ';' : ':'
             envMap['PATH'] = process.env['PATH'] || ''
             envMap['PATH'] = `${this.ServerInfo.localPath}${dep}${envMap['PATH']}`
@@ -107,6 +113,8 @@ export const EasyServer = function (config: any) {
                 envMap['PATH'] = `${this.ServerInfo.localPath}/binary${dep}${envMap['PATH']}`
             }
             envMap['PYTHONIOENCODING'] = 'utf-8'
+            envMap['AIGCPANEL_SERVER_PLACEHOLDER_CONFIG'] = configJsonPath
+            envMap['AIGCPANEL_SERVER_PLACEHOLDER_ROOT'] = this.ServerInfo.localPath
             if (this.serverConfig.easyServer.envs) {
                 for (const e of this.serverConfig.easyServer.envs) {
                     let pcs = e.split('=')
@@ -122,7 +130,7 @@ export const EasyServer = function (config: any) {
                 result: {},
                 endTime: null,
             }
-            console.log('easyServer.start', JSON.stringify({command, envMap, configData}))
+            // console.log('easyServer.start', JSON.stringify({command, envMap, configData}))
             await (async () => {
                 return new Promise((resolve, reject) => {
                     let timer = null, controller = null
@@ -176,7 +184,7 @@ export const EasyServer = function (config: any) {
             })()
             resultData.end = Date.now()
             resultData.data = await resultDataCalculator(data, launcherResult)
-            console.log('easyServer.end', launcherResult)
+            // console.log('easyServer.end', launcherResult)
             await Files.deletes(configJsonPath, {isFullPath: true})
             return {
                 code: 0,
