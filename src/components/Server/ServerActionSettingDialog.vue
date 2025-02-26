@@ -19,13 +19,24 @@ const readonly = computed(() => {
         EnumServerStatus.ERROR,
     ].includes(props.record.status)
 })
+const gpus = ref<{
+    id: string,
+    name: string,
+    size: number,
+}[]>([])
 
-const show = () => {
+const show = async () => {
+    gpus.value = await window.$mapi.server.listGpus()
     visible.value = true
     settings.value = cloneDeep(props.record.settings)
     const settingValue = {}
     settings.value.forEach((s: any) => {
         settingValue[s.name] = s.default
+        if (s.type === 'gpuSelector') {
+            if ('' === settingValue[s.name] && gpus.value.length > 0) {
+                settingValue[s.name] = gpus.value[0].id
+            }
+        }
     })
     setting.value = settingValue
 }
@@ -74,6 +85,17 @@ defineExpose({
                                      :value="option.value">{{ option.label }}
                             </a-radio>
                         </a-radio-group>
+                    </a-form-item>
+                    <a-form-item v-else-if="fs.type==='gpuSelector'"
+                                 :field="fs.name"
+                                 :label="fs.title">
+                        <a-select v-model="setting[fs.name]"
+                                  :disabled="readonly">
+                            <a-option v-for="gpu in gpus"
+                                      :key="gpu.id"
+                                      :value="gpu.id">{{ gpu.name }}
+                            </a-option>
+                        </a-select>
                     </a-form-item>
                 </div>
             </a-form>

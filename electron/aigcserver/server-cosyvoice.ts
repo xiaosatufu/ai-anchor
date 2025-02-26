@@ -298,7 +298,8 @@ export const ServerCosyvoice: ServerContext = {
                         promptAudio: data.promptAudio,
                         promptText: data.promptText,
                         crossLingual: !!param['CrossLingual'],
-                    }
+                    },
+                    setting:this.ServerInfo.setting,
                 })
                 const result = await this.ServerApi.launcherSubmitAndQuery(this, {
                     id: data.id,

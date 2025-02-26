@@ -2,6 +2,7 @@ import url, {fileURLToPath} from "node:url";
 import {BrowserView, BrowserWindow} from "electron";
 import {isPackaged} from "./env";
 import path, {join} from "node:path";
+import {Log} from "../mapi/log/main";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -44,3 +45,34 @@ export const rendererDistPath = (fileName: string) => {
 export const rendererIsUrl = (url: string) => {
     return url.startsWith('http://') || url.startsWith('https://');
 }
+
+export const getGpuInfo = async () => {
+    const list = [] as {
+        id: string,
+        name: string,
+        size: number,
+    }[]
+    try {
+        // @ts-ignore
+        const si = await import('systeminformation')
+        const graphics = await si.graphics()
+        graphics.controllers.forEach((controller, index) => {
+            const size = Math.ceil(controller.vram / 1024)
+            let id = (index - 1) + ''
+            if (!size) {
+                id = ''
+            }
+            const name = controller.model
+            list.push({id, name, size})
+        })
+    } catch (e) {
+        Log.error('getGpuInfo', e)
+    }
+    return list
+}
+
+setTimeout(() => {
+    getGpuInfo().then(res => {
+        console.log('gpuInfo', res)
+    })
+}, 3000)

@@ -3,7 +3,7 @@
 import ServerStatus from "../components/Server/ServerStatus.vue";
 import {EnumServerType} from "../types/Server";
 import ServerAddDialog from "../components/Server/ServerAddDialog.vue";
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import {useServerStore} from "../store/modules/server";
 import {AppConfig} from "../config";
 import {t} from "../lang";
@@ -36,7 +36,6 @@ const typeName = (type: string) => {
         return t('云端模型')
     }
 }
-
 
 </script>
 

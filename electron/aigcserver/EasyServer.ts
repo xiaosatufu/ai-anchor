@@ -89,6 +89,7 @@ export const EasyServer = function (config: any) {
         try {
             this.send('taskRunning', {id: data.id})
             const configData = await configCalculator(data)
+            configData.setting = this.ServerInfo.setting
             configJsonPath = await this.ServerApi.launcherPrepareConfigJson(configData)
             let command = []
             command.push(this.serverConfig.easyServer.entry)
@@ -198,7 +199,7 @@ export const EasyServer = function (config: any) {
         }
     }
     this.soundTts = async function (data: ServerFunctionDataType) {
-        // console.log('videoGen', {data, serverInfo: this.ServerInfo})
+        // console.log('soundTts', {data, serverInfo: this.ServerInfo})
         return this._callFunc(
             data,
             async (data: ServerFunctionDataType) => {
@@ -227,7 +228,7 @@ export const EasyServer = function (config: any) {
         )
     }
     this.soundClone = async function (data: ServerFunctionDataType) {
-        // console.log('videoGen', {data, serverInfo: this.ServerInfo})
+        // console.log('soundClone', {data, serverInfo: this.ServerInfo})
         return this._callFunc(
             data,
             async (data: ServerFunctionDataType) => {
@@ -258,7 +259,7 @@ export const EasyServer = function (config: any) {
         )
     }
     this.videoGen = async function (data: ServerFunctionDataType) {
-        // console.log('videoGen', {data, serverInfo: this.ServerInfo})
+        // console.log('videoGen', JSON.stringify({data, serverInfo: this.ServerInfo}))
         return this._callFunc(
             data,
             async (data: ServerFunctionDataType) => {

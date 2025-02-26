@@ -261,7 +261,8 @@ export const ServerCosyvoice2300mInstruct: ServerContext = {
                     speed: parseFloat(data.param.speed),
                     text: data.text,
                     speakerId: data.param.speaker,
-                }
+                },
+                setting: this.ServerInfo.setting,
             })
             const result = await this.ServerApi.launcherSubmitAndQuery(this, {
                 id: data.id,

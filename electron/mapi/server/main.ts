@@ -5,6 +5,12 @@ import {mapError} from "./error";
 import {AigcServer} from "../../aigcserver";
 import {SendType, ServerContext, ServerInfo} from "./type";
 import {Files} from "../file/main";
+import {getGpuInfo} from "../../lib/env-main";
+
+
+ipcMain.handle('server:listGpus', async (event) => {
+    return await getGpuInfo()
+})
 
 const serverModule: {
     [key: string]: ServerContext

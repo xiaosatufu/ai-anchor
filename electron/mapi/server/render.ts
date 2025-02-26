@@ -1,6 +1,10 @@
 import {ipcRenderer} from 'electron'
 import {ServerInfo} from "./type";
 
+const listGpus = async () => {
+    return ipcRenderer.invoke('server:listGpus')
+}
+
 const isSupport = async (serverInfo: ServerInfo) => {
     return ipcRenderer.invoke('server:isSupport', serverInfo)
 }
@@ -37,6 +41,7 @@ const callFunctionWithException = async (serverInfo: ServerInfo, method: string,
 }
 
 export default {
+    listGpus,
     isSupport,
     start,
     ping,

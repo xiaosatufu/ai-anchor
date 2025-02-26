@@ -207,6 +207,11 @@ declare interface Window {
             run: (args: string[]) => Promise<string>,
         },
         server: {
+            listGpus: () => Promise<{
+                id: string,
+                name: string,
+                size: number,
+            }[]>,
             isSupport: (serverInfo: ServerInfo) => Promise<boolean>,
             start: (serverInfo: ServerInfo) => Promise<void>,
             stop: (serverInfo: ServerInfo) => Promise<void>,

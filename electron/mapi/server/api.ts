@@ -276,6 +276,9 @@ const launcherPrepareConfigJson = async (data: any) => {
 }
 
 const launcherSubmitConfigJsonAndQuery = async (context: ServerContext, configData: any) => {
+    if (!('setting' in configData)) {
+        configData.setting = context.ServerInfo.setting
+    }
     const configJsonPath = await launcherPrepareConfigJson(configData)
     const result = await launcherSubmitAndQuery(context, {
         id: configData.id,
