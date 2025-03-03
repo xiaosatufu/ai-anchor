@@ -48,6 +48,8 @@ export const VideoGen: TaskBiz = {
         } else if (record.soundType === 'soundClone') {
             const soundCloneRecord = await SoundCloneService.get(record.soundCloneId)
             soundFile = soundCloneRecord?.resultWav as string
+        } else if (record.soundType === 'soundCustom') {
+            soundFile = record.soundCustomFile
         }
         if (!soundFile) {
             throw new Error('SoundFileEmpty')

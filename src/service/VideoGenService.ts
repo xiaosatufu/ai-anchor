@@ -17,6 +17,7 @@ export type VideoGenRecord = {
     soundTtsText: string;
     soundCloneId: number;
     soundCloneText: string;
+    soundCustomFile: string;
 
     param?: any;
 
@@ -97,7 +98,7 @@ export const VideoGenService = {
         const fields = [
             'serverName', 'serverTitle', 'serverVersion',
             'videoTemplateId', 'videoTemplateName',
-            'soundType', 'soundTtsId', 'soundTtsText', 'soundCloneId', 'soundCloneText',
+            'soundType', 'soundTtsId', 'soundTtsText', 'soundCloneId', 'soundCloneText', 'soundCustomFile',
             'param',
             'status', 'statusMsg', 'startTime', 'endTime',
         ]
@@ -131,6 +132,11 @@ export const VideoGenService = {
         if (record.resultMp4) {
             const resultMp4Abs = window.$mapi.file.absolutePath(record.resultMp4)
             await window.$mapi.file.deletes(resultMp4Abs)
+        }
+        if (record.soundCustomFile) {
+            await window.$mapi.file.deletes(record.soundCustomFile, {
+                isFullPath: true
+            })
         }
         await window.$mapi.db.delete(`DELETE
                                       FROM ${this.tableName()}

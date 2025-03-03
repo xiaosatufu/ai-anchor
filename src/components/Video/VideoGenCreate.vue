@@ -26,6 +26,7 @@ const formData = ref({
     soundType: 'soundTts',
     soundTtsId: 0,
     soundCloneId: 0,
+    soundCustomFile: '',
     param: {},
 });
 const formDataParam = ref([])
@@ -81,6 +82,7 @@ const doSubmit = async () => {
     }
     let soundTtsRecord: SoundTtsRecord | null = null
     let soundCloneRecord: SoundCloneRecord | null = null
+    let soundCustomFile: string | null = null
     if (formData.value.soundType === 'soundTts') {
         if (!formData.value.soundTtsId) {
             Dialog.tipError(t('请选择声音'))
@@ -101,6 +103,16 @@ const doSubmit = async () => {
             Dialog.tipError(t('请选择声音'))
             return
         }
+    } else if (formData.value.soundType === 'soundCustom') {
+        soundCustomFile = formData.value.soundCustomFile
+        if (!soundCustomFile) {
+            Dialog.tipError(t('请选择声音'))
+            return
+        }
+        soundCustomFile = await window.$mapi.file.hubSave(soundCustomFile, {
+            isFullPath: true,
+            returnFullPath: true,
+        })
     }
     if (!formData.value.videoTemplateId) {
         Dialog.tipError(t('请选择视频'))
@@ -131,6 +143,7 @@ const doSubmit = async () => {
         soundTtsText: soundTtsRecord ? soundTtsRecord.text : '',
         soundCloneId: formData.value.soundCloneId,
         soundCloneText: soundCloneRecord ? soundCloneRecord.text : '',
+        soundCustomFile: soundCustomFile || '',
         param: formData.value.param,
     }
     if (!await PermissionService.checkForTask('VideoGen', record)) {
@@ -145,6 +158,22 @@ const refresh = async (type: 'videoTemplate') => {
     if (type === 'videoTemplate') {
         videoTemplateRecords.value = await VideoTemplateService.list()
     }
+}
+
+const doSoundCustomSelect = async () => {
+    const path = await window.$mapi.file.openFile({
+        filters: [
+            {name: '*.wav', extensions: ['wav']},
+        ],
+    })
+    if (!path) {
+        return
+    }
+    formData.value.soundCustomFile = path
+}
+
+const fileName = (fullPath: string) => {
+    return fullPath.replace(/\\/g, '/').split('/').pop() || ''
 }
 
 const emit = defineEmits({
@@ -187,12 +216,11 @@ defineExpose({
                         <i class="iconfont icon-sound-clone"></i>
                         {{ $t('声音克隆') }}
                     </a-radio>
+                    <a-radio value="soundCustom">
+                        <icon-file/>
+                        {{ $t('本地文件') }}
+                    </a-radio>
                 </a-radio-group>
-            </div>
-            <div class="mr-1" v-if="formData.soundType==='soundTts'">
-                <a-tooltip :content="$t('声音合成')">
-                    <i class="iconfont icon-sound-generate"></i>
-                </a-tooltip>
             </div>
             <div class="mr-3 w-56 flex-shrink-0" v-if="formData.soundType==='soundTts'">
                 <a-select v-model="formData.soundTtsId">
@@ -204,11 +232,6 @@ defineExpose({
                     </a-option>
                 </a-select>
             </div>
-            <div class="mr-1" v-if="formData.soundType==='soundClone'">
-                <a-tooltip :content="$t('声音克隆')">
-                    <i class="iconfont icon-sound-clone"></i>
-                </a-tooltip>
-            </div>
             <div class="mr-3 w-56 flex-shrink-0" v-if="formData.soundType==='soundClone'">
                 <a-select v-model="formData.soundCloneId">
                     <a-option :value="0">{{ $t('请选择') }}</a-option>
@@ -218,6 +241,14 @@ defineExpose({
                         </div>
                     </a-option>
                 </a-select>
+            </div>
+            <div class="mr-3 w-56 flex-shrink-0" v-if="formData.soundType==='soundCustom'">
+                <a-button @click="doSoundCustomSelect">
+                    <div v-if="formData.soundCustomFile">
+                        {{ fileName(formData.soundCustomFile) }}
+                    </div>
+                    <div v-else>{{ $t('选择本地文件') }}</div>
+                </a-button>
             </div>
         </div>
         <div class="flex items-center h-12">
@@ -245,7 +276,7 @@ defineExpose({
             <a-button class="mr-2" type="primary" @click="doSubmit">
                 {{ $t('开始生成视频') }}
             </a-button>
-            <ServerContentInfoAction :config="modelConfig as any" func="videoGen" />
+            <ServerContentInfoAction :config="modelConfig as any" func="videoGen"/>
         </div>
     </div>
 </template>

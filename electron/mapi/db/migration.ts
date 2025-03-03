@@ -85,6 +85,12 @@ const versions = [
             await db.execute(`ALTER TABLE data_video_gen ADD COLUMN result TEXT`);
         }
     },
+    {
+        version:3,
+        up: async (db: DB) => {
+            await db.execute(`ALTER TABLE data_video_gen ADD COLUMN soundCustomFile TEXT`);
+        }
+    },
 ]
 
 export default {

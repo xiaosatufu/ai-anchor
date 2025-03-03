@@ -11,6 +11,7 @@ import VideoGenActionDelete from "../../components/Video/VideoGenActionDelete.vu
 import VideoPlayer from "../../components/common/VideoPlayer.vue";
 import VideoDuration from "../../components/Video/VideoDuration.vue";
 import ServerTaskResultParam from "../../components/Server/ServerTaskResultParam.vue";
+import AudioPlayer from "../../components/common/AudioPlayer.vue";
 
 const videoTemplateDialog = ref<InstanceType<typeof VideoTemplateDialog> | null>(null)
 const videoGenCreate = ref<InstanceType<typeof VideoGenCreate> | null>(null)
@@ -118,10 +119,19 @@ onBeforeUnmount(() => {
                                         {{ r.soundCloneText }}
                                     </div>
                                 </div>
+                                <div v-if="r.soundType==='soundCustom'" class="flex items-start">
+                                    <div class="bg-gray-100 px-3 py-1 leading-6 rounded mr-2">
+                                        <icon-file/>
+                                        {{ $t('本地文件') }}
+                                    </div>
+                                    <div class="flex-grow">
+                                        <AudioPlayer :url="`file://${r.soundCustomFile}`" />
+                                    </div>
+                                </div>
                             </div>
                             <div class="flex-shrink-0 ml-8">
-                                <div class="p-2 rounded shadow bg-gray-300" v-if="r.resultMp4">
-                                    <div class="w-48 h-48" v-if="r.resultMp4">
+                                <div class="p-2 rounded shadow bg-gray-300" v-if="1||r.resultMp4">
+                                    <div class="w-48 h-48" v-if="1||r.resultMp4">
                                         <VideoPlayer :url="'file://'+r.resultMp4"/>
                                     </div>
                                 </div>

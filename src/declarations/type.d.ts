@@ -151,6 +151,7 @@ declare interface Window {
             openDirectory: (options: {} = {}) => Promise<any>,
             openSave: (options: {} = {}) => Promise<any>,
             openPath: (path: string, options: {} = {}) => Promise<void>,
+            hubSave: (file: string, option?: { isFullPath?: boolean, returnFullPath?: boolean, }) => Promise<string>,
         },
         updater: {
             checkForUpdate: () => Promise<ApiResult<any>>,
