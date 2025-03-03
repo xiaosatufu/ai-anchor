@@ -25,18 +25,20 @@ const gpus = ref<{
     size: number,
 }[]>([])
 
+const getGpus = async () => {
+    let gpus: any = []
+    gpus.push({id: '', name: '默认', size: 0})
+    gpus = gpus.concat(await window.$mapi.server.listGpus())
+    return gpus
+}
+
 const show = async () => {
-    gpus.value = await window.$mapi.server.listGpus()
+    gpus.value = await getGpus()
     visible.value = true
     settings.value = cloneDeep(props.record.settings)
     const settingValue = {}
     settings.value.forEach((s: any) => {
         settingValue[s.name] = s.default
-        if (s.type === 'gpuSelector') {
-            if ('' === settingValue[s.name] && gpus.value.length > 0) {
-                settingValue[s.name] = gpus.value[0].id
-            }
-        }
     })
     setting.value = settingValue
 }
@@ -93,7 +95,8 @@ defineExpose({
                                   :disabled="readonly">
                             <a-option v-for="gpu in gpus"
                                       :key="gpu.id"
-                                      :value="gpu.id">{{ gpu.name }}
+                                      :value="gpu.id">
+                                {{ gpu.name }}({{ gpu.id }}-{{ gpu.size }})
                             </a-option>
                         </a-select>
                     </a-form-item>

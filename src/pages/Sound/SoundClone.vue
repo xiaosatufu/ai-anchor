@@ -66,25 +66,25 @@ const doRefresh = async () => {
                     <div class="rounded-xl shadow border p-4 mt-4 hover:shadow-lg">
                         <div class="flex items-center">
                             <div class="flex-grow flex items-center">
-                                <div class="inline-block mr-4 bg-blue-100 rounded-lg px-2 leading-8 h-8">
+                                <div class="inline-block mr-2 bg-blue-100 rounded-lg px-2 leading-8 h-8">
                                     #{{ r.id }}
                                 </div>
-                                <div class="inline-block mr-4 bg-blue-100 rounded-lg px-2 leading-8 h-8">
+                                <div class="inline-block mr-2 bg-blue-100 rounded-lg px-2 leading-8 h-8">
                                     <i class="iconfont icon-server mr-1"></i>
                                     {{ r.serverTitle }}
                                     v{{ r.serverVersion }}
                                 </div>
-                                <div class="inline-block mr-4 bg-blue-100 rounded-lg px-2 leading-8 h-8">
+                                <div class="inline-block mr-2 bg-blue-100 rounded-lg px-2 leading-8 h-8">
                                     <i class="iconfont icon-sound-prompt mr-1"></i>
                                     {{ r.promptName }}
                                 </div>
                                 <div v-if="r.param.speed"
-                                     class="inline-block mr-4 bg-blue-100 rounded-lg px-2 leading-8 h-8">
+                                     class="inline-block mr-2 bg-blue-100 rounded-lg px-2 leading-8 h-8">
                                     <i class="iconfont icon-speed mr-1"></i>
                                     <span class="">x{{ r.param.speed }}</span>
                                 </div>
                                 <div v-if="r.param.crossLingual"
-                                     class="inline-block mr-4 bg-blue-100 rounded-lg px-2 leading-8 h-8">
+                                     class="inline-block mr-2 bg-blue-100 rounded-lg px-2 leading-8 h-8">
                                     <i class="iconfont icon-global mr-1"></i>
                                     <span class="">{{ $t('跨语种') }}</span>
                                 </div>

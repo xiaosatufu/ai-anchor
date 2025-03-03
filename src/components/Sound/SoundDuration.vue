@@ -36,7 +36,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div class="bg-gray-100 text-sm rounded-full px-2 leading-8">
+    <div class="bg-gray-100 text-xs rounded-full px-2 leading-8">
         {{ duration }}
     </div>
 </template>

@@ -58,10 +58,7 @@ export const getGpuInfo = async () => {
         const graphics = await si.graphics()
         graphics.controllers.forEach((controller, index) => {
             const size = Math.ceil(controller.vram / 1024)
-            let id = (index - 1) + ''
-            if (!size) {
-                id = ''
-            }
+            let id = index + ''
             const name = controller.model
             list.push({id, name, size})
         })
