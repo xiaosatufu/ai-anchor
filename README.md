@@ -2,6 +2,12 @@
 
 ![](./screenshots/cn/home.png)
 
+![star](https://img.shields.io/badge/Framework-TS+Vue3+Electron-blue)
+[![star](https://img.shields.io/badge/WEB-aigcpanel.com-blue)](https://aigcpanel.com)
+[![star](https://img.shields.io/github/stars/modstart-lib/aigcpanel.svg)](https://github.com/modstart-lib/aigcpanel)
+[![star](https://gitee.com/modstart-lib/aigcpanel/badge/star.svg)](https://gitee.com/modstart-lib/aigcpanel)
+[![star](https://gitcode.com/modstart-lib/aigcpanel/star/badge.svg)](https://gitcode.com/modstart-lib/aigcpanel)
+
 ## 软件介绍
 
 `AigcPanel` 是一个简单易用的一站式AI数字人系统，小白也可使用。
