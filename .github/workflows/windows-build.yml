@@ -1,10 +1,10 @@
 name: Build
 
 on:
-    workflow_dispatch:
-    push:
-        branches:
-            - mainx
+  workflow_dispatch:
+  push:
+    branches:
+      - mainx
 
 jobs:
   build:
@@ -12,9 +12,9 @@ jobs:
 
     strategy:
       matrix:
-          include:
-              - os: windows-latest
-                arch: [arm64, amd64]
+        include:
+          - os: windows-latest
+            arch: [arm64, amd64]
 
     steps:
       - name: Checkout Code
@@ -31,31 +31,31 @@ jobs:
       - name: Build Release Files
         run: npm run build
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set Build Name (Windows)
         shell: pwsh
         run: |
-            $randomNumber = Get-Random -Minimum 10000 -Maximum 99999
-            $DIST_FILE_NAME = "Windows-X64-v$(Get-Date -Format 'yyyyMMdd_HHmmss')-$randomNumber"
-            Write-Host "::add-mask::$DIST_FILE_NAME"
-            echo "DIST_FILE_NAME=$DIST_FILE_NAME" >> $env:GITHUB_ENV
+          $randomNumber = Get-Random -Minimum 10000 -Maximum 99999
+          $DIST_FILE_NAME = "Windows-X64-v$(Get-Date -Format 'yyyyMMdd_HHmmss')-$randomNumber"
+          Write-Host "::add-mask::$DIST_FILE_NAME"
+          echo "DIST_FILE_NAME=$DIST_FILE_NAME" >> $env:GITHUB_ENV
 
-      - name: Upload to OSS
-        uses: modstart/github-oss-action@master
-        with:
-            title: ${{ github.event.head_commit.message }}
-            key-id: ${{ secrets.OSS_2_KEY_ID }}
-            key-secret: ${{ secrets.OSS_2_KEY_SECRET }}
-            region: ${{ secrets.OSS_2_REGION }}
-            bucket: ${{ secrets.OSS_2_BUCKET }}
-            callback: ${{ secrets.OSS_2_CALLBACK }}
-            assets: |
-                dist-release/*.exe:apps/aigcpanel-${{ env.DIST_FILE_NAME }}/
+      #   - name: Upload to OSS
+      #     uses: modstart/github-oss-action@master
+      #     with:
+      #         title: ${{ github.event.head_commit.message }}
+      #         key-id: ${{ secrets.OSS_2_KEY_ID }}
+      #         key-secret: ${{ secrets.OSS_2_KEY_SECRET }}
+      #         region: ${{ secrets.OSS_2_REGION }}
+      #         bucket: ${{ secrets.OSS_2_BUCKET }}
+      #         callback: ${{ secrets.OSS_2_CALLBACK }}
+      #         assets: |
+      #             dist-release/*.exe:apps/aigcpanel-${{ env.DIST_FILE_NAME }}/
 
       - name: Upload Artifact Windows
         uses: actions/upload-artifact@v4
         with:
-            name: windows-artifact
-            path: |
-                dist-release/*.exe
+          name: windows-artifact
+          path: |
+            dist-release/*.exe
