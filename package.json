@@ -1,6 +1,6 @@
 {
-    "name": "aigcpanel",
-    "version": "0.7.0",
+    "name": "ai-anchor",
+    "version": "0.1.0",
     "main": "dist-electron/main/index.js",
     "description": "一站式AI数字人系统",
     "author": "ModStartLib",

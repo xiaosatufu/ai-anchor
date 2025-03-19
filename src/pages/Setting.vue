@@ -61,12 +61,12 @@ onBeforeUnmount(() => {
           {{ t("环境设置") }}
         </div>
       </div>
-      <div data-section="about" class="p-2 mr-2 mb-4 rounded-lg cursor-pointer">
+      <!-- <div data-section="about" class="p-2 mr-2 mb-4 rounded-lg cursor-pointer">
         <div class="text-base">
           <icon-user />
           {{ t("关于软件") }}
         </div>
-      </div>
+      </div> -->
     </div>
     <div class="flex-grow">
       <div
