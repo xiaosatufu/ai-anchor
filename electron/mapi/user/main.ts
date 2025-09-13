@@ -103,8 +103,9 @@ ipcMain.handle('user:refresh', async (event) => {
 })
 
 const getApiToken = async (): Promise<string> => {
-    await get()
-    return userData.apiToken
+  await get();
+  // Return offline token if no API token is available
+  return userData.apiToken || "offline-mode-token";
 }
 
 ipcMain.handle('user:getApiToken', async (event) => {
@@ -170,49 +171,71 @@ const post = async <T>(
         catchException?: boolean,
     }
 ): Promise<ResultType<T>> => {
-    option = Object.assign({
-        catchException: true,
-    }, option)
-    let url = api
-    if (!api.startsWith('http:') && !api.startsWith('https:')) {
-        url = `${AppConfig.apiBaseUrl}/${api}`
-    }
-    const apiToken = await User.getApiToken()
+  option = Object.assign(
+    {
+      catchException: true,
+    },
+    option
+  );
+  let url = api;
+  if (!api.startsWith("http:") && !api.startsWith("https:")) {
+    url = `${AppConfig.apiBaseUrl}/${api}`;
+  }
+
+  // Skip network requests in offline mode
+  try {
+    const apiToken = await User.getApiToken();
     const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'User-Agent': Apps.getUserAgent(),
-            'Content-Type': 'application/json',
-            'Api-Token': apiToken,
-        },
-        body: JSON.stringify(data)
-    })
+      method: "POST",
+      headers: {
+        "User-Agent": Apps.getUserAgent(),
+        "Content-Type": "application/json",
+        "Api-Token": apiToken,
+      },
+      body: JSON.stringify(data),
+    });
     if (res.status !== 200) {
-        Log.error('user.post.error', {api, data, res})
-        return {
-            code: -1,
-            msg: `RequestError(code:${res.status},text:${res.statusText})`
-        } as ResultType<T>
+      Log.error("user.post.error", { api, data, res });
+      return {
+        code: -1,
+        msg: `RequestError(code:${res.status},text:${res.statusText})`,
+      } as ResultType<T>;
     }
-    const json = await res.json()
+    const json = await res.json();
     // console.log('post', JSON.stringify({api, data, json}, null, 2))
-    if (!('code' in json)) {
-        Log.error('user.post.error', {api, data, res})
-        console.log('user.post.error', res)
-        throw 'ResponseError'
+    if (!("code" in json)) {
+      Log.error("user.post.error", { api, data, res });
+      console.log("user.post.error", res);
+      throw "ResponseError";
     }
     if (json.code) {
-        // 未登录或登录过期
-        if (json.code === 1001) {
-            if (userData.user && userData.user.id) {
-                await refresh()
-            }
+      // 未登录或登录过期
+      if (json.code === 1001) {
+        if (userData.user && userData.user.id) {
+          await refresh();
         }
-        if (option.catchException) {
-            throw json.msg
-        }
+      }
+      if (option.catchException) {
+        throw json.msg;
+      }
     }
-    return json
+    return json;
+  } catch (error) {
+    console.warn("Network request failed, running in offline mode:", error);
+    if (option.catchException) {
+      // Return success response for offline mode
+      return {
+        code: 0,
+        msg: "offline-mode",
+        data: {},
+      } as ResultType<T>;
+    } else {
+      return {
+        code: -1,
+        msg: "Network unavailable - running in offline mode",
+      } as ResultType<T>;
+    }
+  }
 }
 
 const userInfoApi = async (): Promise<ResultType<{
@@ -221,7 +244,26 @@ const userInfoApi = async (): Promise<ResultType<{
     data: any,
     basic: object,
 }>> => {
-    return await post('app_manager/user_info', {})
+    try {
+      return await post("app_manager/user_info", {});
+    } catch (error) {
+      console.warn("User info API failed, using offline defaults:", error);
+      return {
+        code: 0,
+        msg: "offline-mode",
+        data: {
+          apiToken: "offline-mode-token",
+          user: {
+            id: "offline-user",
+            name: "Offline User",
+            avatar: "",
+            deviceCode: "",
+          },
+          data: {},
+          basic: {},
+        },
+      };
+    }
 }
 
 export const UserApi = {

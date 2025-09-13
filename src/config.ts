@@ -3,6 +3,13 @@ import { TimeUtil } from "../electron/lib/util";
 
 const BASE_URL = "https://aigcpanel.com";
 
+// Add offline mode detection
+const isOfflineMode = () => {
+  // Check if we're in offline mode (simplified for now)
+  // You can set this to true to force offline mode
+  return true; // Force offline mode for now
+};
+
 export const AppConfig = {
   name: "AI-Anchor",
   slogan: "一站式AI数字人系统",
@@ -20,5 +27,11 @@ export const AppConfig = {
   serverUrl: `${BASE_URL}/aigcpanel/`,
   basic: {
     userEnable: false,
+  },
+  // Offline mode configuration
+  offlineMode: {
+    enabled: isOfflineMode(),
+    skipNetworkRequests: true,
+    allowOnlyLocalServers: true,
   },
 };

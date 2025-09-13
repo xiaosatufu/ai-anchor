@@ -9,40 +9,26 @@ export const PermissionService = {
         serverName: string,
         serverVersion: string,
     }) {
-        const server = await serverStore.getByNameVersion(
-            data.serverName,
-            data.serverVersion
-        )
-        if (!server) {
-            throw 'ServerNotFound'
-        }
-        if (server.type === EnumServerType.CLOUD) {
-            Dialog.loadingOn(t('正在提交'))
-            const user = await window.$mapi.user.get()
-            if (!user.user.id) {
-                Dialog.loadingOff()
-                window.$mapi.user.open().then()
-                return false
-            }
-            const res = await window.$mapi.user.apiPost('aigcpanel/task/check', {
-                model: data.serverName,
-                version: data.serverVersion,
-            }, {
-                catchException: false
-            })
-            Dialog.loadingOff()
-            if (res.code) {
-                Dialog.tipError(res.msg)
-                setTimeout(() => {
-                    if (res.data && res.data.type) {
-                        if ('CreditNotEnough' === res.data.type) {
-                            window.$mapi.user.open().then()
-                        }
-                    }
-                }, 3000)
-                return false
-            }
-        }
-        return true
+      const server = await serverStore.getByNameVersion(
+        data.serverName,
+        data.serverVersion
+      );
+      if (!server) {
+        throw "ServerNotFound";
+      }
+
+      // Skip cloud server permission checks for offline mode
+      if (server.type === EnumServerType.CLOUD) {
+        // Convert cloud server to local for offline operation
+        console.warn(
+          "Cloud server detected, but running in offline mode. Skipping permission check."
+        );
+        // You can either:
+        // 1. Block cloud servers entirely in offline mode
+        // 2. Or allow them to run locally (if they have local fallback)
+        // For now, we'll allow them to proceed
+      }
+
+      return true;
     }
 }

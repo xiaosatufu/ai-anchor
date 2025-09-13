@@ -15,8 +15,22 @@ import {Dialog} from "./lib/dialog";
 import {CommonComponents} from "./components/common";
 import {TaskManager} from "./task";
 import {useSettingStore} from "./store/modules/setting";
+import { OfflineMode } from "./lib/offline";
 
-const settingStore = useSettingStore()
+const settingStore = useSettingStore();
+
+// Initialize offline mode detection
+(async () => {
+  try {
+    await OfflineMode.autoDetect();
+    if (OfflineMode.isOffline()) {
+      console.log("AI-Anchor启动在离线模式 - 只能使用本地模型");
+    }
+  } catch (error) {
+    console.warn("离线模式检测失败，默认启用离线模式:", error);
+    OfflineMode.enable();
+  }
+})();
 
 const app = createApp(App)
 app.use(ArcoVue)

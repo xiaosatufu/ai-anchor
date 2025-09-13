@@ -14,7 +14,8 @@ const serverRuntime = ref<Map<string, ServerRuntime>>(new Map())
 const createServerStatus = (record: ServerRecord): ComputedRef<EnumServerStatus> => {
     return computed(() => {
         if (record.type === EnumServerType.CLOUD) {
-            return EnumServerStatus.RUNNING
+          // In offline mode, cloud servers are not available
+          return EnumServerStatus.STOPPED;
         }
         return serverRuntime.value?.get(record.key)?.status || EnumServerStatus.STOPPED
     })
@@ -23,11 +24,12 @@ const getServerRuntimeComputedValue = (record: ServerRecord): ComputedRef<Server
     return computed(() => {
         let defaultStatus = EnumServerStatus.STOPPED
         if (record.type === EnumServerType.CLOUD) {
-            defaultStatus = EnumServerStatus.RUNNING
+          // Cloud servers are not available in offline mode
+          defaultStatus = EnumServerStatus.STOPPED;
         }
-        return serverRuntime.value?.get(record.key) || {
-            status: defaultStatus,
-        } as ServerRuntime
+        return {
+          status: defaultStatus,
+        } as ServerRuntime;
     })
 }
 const getOrCreateServerRuntime = (record: ServerRecord): ServerRuntime => {
@@ -41,9 +43,11 @@ const getOrCreateServerRuntime = (record: ServerRecord): ServerRuntime => {
         logFile: '',
     } as ServerRuntime
     if (record.type === EnumServerType.CLOUD) {
-        defaultValue.status = EnumServerStatus.RUNNING
-        defaultValue.eventChannelName = createEventChannel(record, defaultValue)
-        defaultValue.logFile = `logs/${record.name}_${record.version}_${TimeUtil.dateString()}.log`
+      // Cloud servers are disabled in offline mode
+      defaultValue.status = EnumServerStatus.STOPPED;
+      defaultValue.logFile = `logs/${record.name}_${
+        record.version
+      }_${TimeUtil.dateString()}.log`;
     }
     serverRuntime.value?.set(record.key, defaultValue)
     return serverRuntime.value?.get(record.key) as ServerRuntime

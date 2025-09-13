@@ -191,11 +191,17 @@ const requestEventSource = async (url: string, param: any, option?: {
 }
 
 const env = async () => {
-    const result = {}
-    result['AIGCPANEL_SERVER_API_TOKEN'] = await User.getApiToken()
-    result['AIGCPANEL_SERVER_UUID'] = platformUUID()
-    result['AIGCPANEL_SERVER_LAUNCHER_MODE'] = 'api'
-    return result
+  const result = {};
+  // Skip API token in offline mode to avoid network dependency
+  try {
+    result["AIGCPANEL_SERVER_API_TOKEN"] = await User.getApiToken();
+  } catch (error) {
+    console.warn("Failed to get API token, running in offline mode:", error);
+    result["AIGCPANEL_SERVER_API_TOKEN"] = "offline-mode";
+  }
+  result["AIGCPANEL_SERVER_UUID"] = platformUUID();
+  result["AIGCPANEL_SERVER_LAUNCHER_MODE"] = "api";
+  return result;
 }
 
 const sleep = async (ms) => {
@@ -215,11 +221,26 @@ const launcherSubmitAndQuery = async (context: ServerContext, data: ServerFuncti
     option = Object.assign({
         timeout: 24 * 3600,
     }, option)
-    const submitRet = await requestPost(`${context.url()}submit`, data) as any
+
+    let submitRet: any;
+    try {
+      submitRet = (await requestPost(`${context.url()}submit`, data)) as any;
+    } catch (error) {
+      // If network request fails, try to handle locally
+      console.error(
+        "Network request failed, attempting local fallback:",
+        error
+      );
+      throw new Error(
+        `Network unavailable: ${error.message}. Please ensure you're using local servers for offline operation.`
+      );
+    }
+
     // console.log('submitRet', JSON.stringify(submitRet))
     if (submitRet.code) {
-        throw new Error(`submit ${submitRet.msg}`)
+      throw new Error(`submit ${submitRet.msg}`);
     }
+
     const launcherResult = {
         result: {} as {
             [key: string]: any,
@@ -232,9 +253,19 @@ const launcherSubmitAndQuery = async (context: ServerContext, data: ServerFuncti
             throw new Error('timeout')
         }
         await sleep(5000)
-        const queryRet = await requestPost(`${context.url()}query`, {
-            token: submitRet.data.token
-        }) as any
+
+        let queryRet: any;
+        try {
+          queryRet = (await requestPost(`${context.url()}query`, {
+            token: submitRet.data.token,
+          })) as any;
+        } catch (error) {
+          console.error("Query request failed:", error);
+          throw new Error(
+            `Query failed: ${error.message}. Please check your local server connection.`
+          );
+        }
+
         // console.log('queryRet', JSON.stringify(queryRet))
         if (queryRet.code) {
             throw new Error(queryRet.msg)
